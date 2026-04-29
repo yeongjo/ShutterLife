@@ -20,7 +20,7 @@
 					<li>
 						<span class="text-primary font-semibold">What is Shuttersnap?</span><br />
 						Shuttersnap is a free web tool that lets you check your camera's shutter count instantly
-						by picking a RAW file.
+						by picking a RAW or JPEG file.
 					</li>
 					<li>
 						<span class="text-primary font-semibold">What is Shutter Count?</span><br />
@@ -51,19 +51,19 @@
 				</ul>
 			</section>
 			<section>
-				<h2 class="text-primary mb-2 text-2xl font-bold">Raw Files</h2>
+				<h2 class="text-primary mb-2 text-2xl font-bold">Files</h2>
 				<ul class="text-md text-muted-foreground list-inside list-disc space-y-4 pl-4">
 					<li>
 						<span class="text-primary font-semibold">What file types can I pick?</span><br />
-						You can retrieve the shutter counts from the RAW files taken from supported cameras<span
+						You can retrieve the shutter counts from RAW or JPEG files taken from supported cameras<span
 							class="italic">(refer the "Supported Devices" tab)</span
-						>. Some common formats include .arw, .sr2, .srf and others.
+						>. Common formats include .arw, .jpg, .jpeg, and others.
 					</li>
 					<li>
 						<span class="text-primary font-semibold"
-							>How should I transfer raw images for accurate shutter data?</span
+							>How should I transfer images for accurate shutter data?</span
 						><br />
-						Always use raw images directly from the camera without any manipulation or without going
+						Always use images directly from the camera without any manipulation or without going
 						through a saving pipeline from any third-party software. Make sure the image is
 						<strong>completely unedited</strong> and in its original state, as saved by the camera. Open
 						your file manager, locate the latest image from the folder, and drag it into the tool.
@@ -84,7 +84,7 @@
 					<li>
 						<span class="text-primary font-semibold">Are my photos uploaded to a server?</span><br
 						/>
-						No. All processing happens locally in your browser. Your RAW files never leave your device.
+						No. All processing happens locally in your browser. Your files never leave your device.
 					</li>
 					<li>
 						<span class="text-primary font-semibold">Is any data being collected?</span><br />
@@ -102,8 +102,8 @@
 					<li>
 						<span class="text-primary font-semibold">My file isn't working. What should I do?</span
 						><br />
-						Make sure your file is a supported RAW format and is from a supported camera model. Try another
-						raw file if it still fails.
+						Make sure your file is a supported format (RAW or JPEG) and is from a supported camera model. Try another
+						file if it still fails.
 					</li>
 				</ul>
 			</section>

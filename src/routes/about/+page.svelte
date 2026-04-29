@@ -21,8 +21,8 @@
 			<p class="text-muted-foreground text-md mb-6 text-center">
 				<span class="font-semibold">Shuttersnap</span> is a simple, privacy & user-friendly tool
 				that helps you instantly check the shutter count and model of your Sony(currently) camera.
-				Just pick your RAW file, and get your camera's shutter count in seconds, no installs, no
-				signups, no waiting times for uploading and your raw files never leave your device as all
+				Just pick your RAW or JPEG file, and get your camera's shutter count in seconds, no installs, no
+				signups, no waiting times for uploading and your files never leave your device as all
 				the processing is done on your browser.
 				<br />
 				Also it's worth mentioning that this tool is made possible by the underlying mechanism of shutter

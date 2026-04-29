@@ -96,44 +96,92 @@ function parseTag(
 export async function extractSonyShutterCount(
 	file: File
 ): Promise<{ shutterCount: number | null; cameraModel: string | null; date: Date | null }> {
-	// Read first 1MB for TIFF/EXIF parsing (increased from 100KB)
-	const bufferSize = Math.min(file.size, 1024 * 1024);
+	// Read first 2MB for TIFF/EXIF parsing
+	const bufferSize = Math.min(file.size, 2 * 1024 * 1024);
 	const header = await file.slice(0, bufferSize).arrayBuffer();
-	const view = new Uint8Array(header);
+	const fullView = new Uint8Array(header);
 
-	// Detect endianness
+	// Detect format and find TIFF header
+	let tiffOffset = 0;
+	if (fullView[0] === 0xff && fullView[1] === 0xd8) {
+		// JPEG - find APP1 Exif
+		let pos = 2;
+		while (pos + 10 < fullView.length) {
+			const marker = (fullView[pos] << 8) | fullView[pos + 1];
+			const length = (fullView[pos + 2] << 8) | fullView[pos + 3];
+			if (marker === 0xffe1) {
+				// APP1 - search for Exif header
+				const segment = fullView.subarray(pos + 4, pos + 4 + length);
+				for (let i = 0; i < segment.length - 6; i++) {
+					if (
+						segment[i] === 0x45 &&
+						segment[i + 1] === 0x78 &&
+						segment[i + 2] === 0x69 &&
+						segment[i + 3] === 0x66 &&
+						segment[i + 4] === 0x00 &&
+						segment[i + 5] === 0x00
+					) {
+						tiffOffset = pos + 4 + i + 6;
+						break;
+					}
+				}
+				if (tiffOffset > 0) break;
+			} else if (marker === 0xffda) break;
+			pos += length + 2;
+		}
+	}
+
+	const view = tiffOffset > 0 ? fullView.subarray(tiffOffset) : fullView;
+
+	// Detect endianness from TIFF header
 	let isLE: boolean | null = null;
 	if (view[0] === 0x49 && view[1] === 0x49) isLE = true;
 	if (view[0] === 0x4d && view[1] === 0x4d) isLE = false;
 	if (isLE == null) return { shutterCount: null, cameraModel: null, date: null };
 
-	// Find IFD0 offset
-	let cA = isLE
+	// Parse IFD chain to find Model and ExifIFD
+	let model = '';
+	let exifAddr: number | null = null;
+	let nextIfdOffset = isLE
 		? view[7] * 16777216 + view[6] * 65536 + view[5] * 256 + view[4]
 		: view[4] * 16777216 + view[5] * 65536 + view[6] * 256 + view[7];
 
-	if (cA === 0 || cA >= view.length) cA = 8; // Fallback
+	if (nextIfdOffset === 0 || nextIfdOffset >= view.length) nextIfdOffset = 8;
 
-	let ifdEntries = isLE ? view[cA + 1] * 256 + view[cA] : view[cA] * 256 + view[cA + 1];
-	cA += 2;
-	let exifAddr: number | null = null;
-	let model = '';
+	// Limit to 5 IFDs to prevent infinite loops
+	let loopGuard = 0;
+	while (nextIfdOffset > 0 && nextIfdOffset + 2 <= view.length && loopGuard < 5) {
+		let cA = nextIfdOffset;
+		let ifdEntries = isLE ? view[cA + 1] * 256 + view[cA] : view[cA] * 256 + view[cA + 1];
+		cA += 2;
 
-	while (ifdEntries > 0 && cA + 12 <= view.length) {
-		const tag = parseTag(view, cA, isLE);
-		if (tag.tag === 0x8769 && typeof tag.value === 'number') exifAddr = tag.value;
-		if (tag.tag === 0x0110 && typeof tag.value === 'string')
-			model = tag.value.trim().replace(/\0+$/, '');
-		cA += 12;
-		ifdEntries--;
+		while (ifdEntries > 0 && cA + 12 <= view.length) {
+			const tag = parseTag(view, cA, isLE);
+			if (tag.tag === 0x8769 && typeof tag.value === 'number') exifAddr = tag.value;
+			if (tag.tag === 0x0110 && typeof tag.value === 'string' && !model) {
+				model = tag.value.trim().replace(/\0+$/, '');
+			}
+			cA += 12;
+			ifdEntries--;
+		}
+
+		// Next IFD offset is at the end of entries
+		if (cA + 4 <= view.length) {
+			nextIfdOffset = isLE
+				? view[cA + 3] * 16777216 + view[cA + 2] * 65536 + view[cA + 1] * 256 + view[cA]
+				: view[cA] * 16777216 + view[cA + 1] * 65536 + view[cA + 2] * 256 + view[cA + 3];
+		} else {
+			nextIfdOffset = 0;
+		}
+		loopGuard++;
 	}
 
 	if (!exifAddr || exifAddr >= view.length)
 		return { shutterCount: null, cameraModel: model || null, date: null };
 
 	// Find makernote and DateTimeOriginal in EXIF
-	cA = exifAddr;
-	ifdEntries = isLE ? view[cA + 1] * 256 + view[cA] : view[cA] * 256 + view[cA + 1];
+	let cA = exifAddr;
+	let ifdEntries = isLE ? view[cA + 1] * 256 + view[cA] : view[cA] * 256 + view[cA + 1];
 	cA += 2;
 	let sonyAddr: number | null = null;
 	let dateOriginal: string | null = null;
@@ -143,6 +191,8 @@ export async function extractSonyShutterCount(
 		if (tag.tag === 0x927c && typeof tag.value === 'number') sonyAddr = tag.value;
 		if ((tag.tag === 0x9003 || tag.tag === 0x9004) && typeof tag.value === 'string')
 			dateOriginal = tag.value;
+		if (tag.tag === 0x0110 && typeof tag.value === 'string' && !model)
+			model = tag.value.trim().replace(/\0+$/, '');
 		cA += 12;
 		ifdEntries--;
 	}
@@ -181,8 +231,15 @@ export async function extractSonyShutterCount(
 	let wantedTag: number | null = null;
 	let wantedAddr: number | null = null;
 	let decipher = false;
-	if (model in sonyModels) {
-		const cameraType = sonyModels[model].type;
+
+	let matchedModel = sonyModels[model];
+	if (!matchedModel) {
+		const cleanModel = model.replace(/^Sony\s+/i, '').trim();
+		matchedModel = sonyModels[cleanModel];
+	}
+
+	if (matchedModel) {
+		const cameraType = matchedModel.type;
 		if (cameraType === sonySeries.DSLR) {
 			wantedTag = 32;
 			wantedAddr = 2118;
@@ -205,6 +262,10 @@ export async function extractSonyShutterCount(
 			wantedTag = 32;
 			wantedAddr = 283;
 		}
+	} else if (sonyAddr) {
+		// Fallback for unknown Sony models - most modern mirrorless use 0x9050
+		wantedTag = 0x9050;
+		decipher = true;
 	} else {
 		return { shutterCount: null, cameraModel: model || null, date };
 	}
@@ -217,17 +278,32 @@ export async function extractSonyShutterCount(
 	let shutterCount: number | null = null;
 	while (ifdEntries > 0 && cA + 12 <= view.length) {
 		const tag = parseTag(view, cA, isLE);
-		if (tag.tag === wantedTag && wantedAddr != null && typeof tag.value === 'number') {
-			const countPos = tag.value + wantedAddr;
-			if (countPos + 3 <= view.length) {
-				if (decipher) {
-					shutterCount =
-						doB(view[countPos]) + doB(view[countPos + 1]) * 256 + doB(view[countPos + 2]) * 65536;
-				} else {
-					shutterCount = view[countPos] + view[countPos + 1] * 256 + view[countPos + 2] * 65536;
+		if (tag.tag === wantedTag && typeof tag.value === 'number') {
+			if (wantedAddr !== null) {
+				const countPos = tag.value + wantedAddr;
+				if (countPos + 3 <= view.length) {
+					if (decipher) {
+						shutterCount =
+							doB(view[countPos]) + doB(view[countPos + 1]) * 256 + doB(view[countPos + 2]) * 65536;
+					} else {
+						shutterCount = view[countPos] + view[countPos + 1] * 256 + view[countPos + 2] * 65536;
+					}
+				}
+			} else if (tag.tag === 0x9050) {
+				// Guess offset for unknown model (ILC1=50, ILC2=58, ILC3=10)
+				for (const addr of [58, 50, 10]) {
+					const countPos = tag.value + addr;
+					if (countPos + 3 <= view.length) {
+						const val =
+							doB(view[countPos]) + doB(view[countPos + 1]) * 256 + doB(view[countPos + 2]) * 65536;
+						if (val > 0 && val < 2000000) {
+							shutterCount = val;
+							break;
+						}
+					}
 				}
 			}
-			break;
+			if (shutterCount !== null) break;
 		}
 		cA += 12;
 		ifdEntries--;

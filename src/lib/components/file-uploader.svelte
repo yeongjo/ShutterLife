@@ -3,7 +3,7 @@
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 
 	export let selectedImages: { file: File; url: string }[] = [];
-	export let placeholder: string = 'Click Here or Drag and Drop your Raw Images (2-3 recommended)';
+	export let placeholder: string = 'Click Here or Drag and Drop your Images (2-3 recommended)';
 	export let className: string = '';
 	export let onFilesSelected: ((files: { file: File; url: string }[]) => void) | undefined =
 		undefined;
@@ -15,7 +15,19 @@
 		| ((buffer: Uint8Array, options?: { extractThumbnail?: boolean }) => Uint8Array)
 		| undefined;
 	let isProcessing = false;
-	const rawExtensions = ['.arw', '.srf', '.sr2', 'cr2', 'cr3', '.nef', '.nrw', '.raf', '.rw2'];
+	const supportedExtensions = [
+		'.arw',
+		'.srf',
+		'.sr2',
+		'.cr2',
+		'.cr3',
+		'.nef',
+		'.nrw',
+		'.raf',
+		'.rw2',
+		'.jpg',
+		'.jpeg'
+	];
 
 	onMount(async () => {
 		const script = document.createElement('script');
@@ -61,9 +73,9 @@
 		}
 	}
 
-	function isRawFile(fileName: string): boolean {
+	function isSupportedFile(fileName: string): boolean {
 		const extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
-		return rawExtensions.includes(extension);
+		return supportedExtensions.includes(extension);
 	}
 
 	async function processFiles(files: FileList | File[]) {
@@ -72,9 +84,16 @@
 
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
-			if (!isRawFile(file.name)) continue;
+			if (!isSupportedFile(file.name)) continue;
 
 			try {
+				const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+				if (extension === '.jpg' || extension === '.jpeg') {
+					const url = URL.createObjectURL(file);
+					newImages.push({ file, url });
+					continue;
+				}
+
 				if (!dcraw) {
 					// Wait a bit for dcraw to load if it's not ready
 					await new Promise((resolve) => setTimeout(resolve, 500));
@@ -140,7 +159,7 @@
 		<div class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-black/20">
 			<div class="text-center">
 				<div class="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div>
-				<div class="text-sm text-white">Processing RAW files...</div>
+				<div class="text-sm text-white">Processing files...</div>
 			</div>
 		</div>
 	{:else if selectedImages.length > 0}
@@ -194,7 +213,7 @@
 		bind:this={fileInput}
 		type="file"
 		multiple
-		accept={rawExtensions.join(',')}
+		accept={supportedExtensions.join(',')}
 		class="hidden"
 		on:change={handleFileInput}
 	/>

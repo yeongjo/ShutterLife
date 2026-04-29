@@ -135,7 +135,7 @@
 		<div class="space-y-2">
 			<h1 class="text-3xl font-bold tracking-tight">Upload Images</h1>
 			<p class="text-muted-foreground">
-				Upload 2 or more RAW images to calculate your daily usage and predict shutter life.
+				Upload 2 or more images (RAW or JPEG) to calculate your daily usage and predict shutter life.
 			</p>
 		</div>
 
@@ -267,7 +267,7 @@
 			<ul class="text-muted-foreground space-y-3 text-sm">
 				<li class="flex items-start gap-2">
 					<span class="bg-primary mt-1 h-1.5 w-1.5 shrink-0 rounded-full"></span>
-					We extract the exact shutter count and timestamp from your RAW files.
+					We extract the exact shutter count and timestamp from your image files.
 				</li>
 				<li class="flex items-start gap-2">
 					<span class="bg-primary mt-1 h-1.5 w-1.5 shrink-0 rounded-full"></span>
