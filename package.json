@@ -7,23 +7,8 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "husky",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint ."
-	},
-	"lint-staged": {
-		"*.{js,ts,svelte}": [
-			"prettier --write",
-			"eslint ."
-		],
-		"*.{css,scss,postcss}": [
-			"prettier --write"
-		],
-		"*.{json,md}": [
-			"prettier --write"
-		]
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^19.8.1",

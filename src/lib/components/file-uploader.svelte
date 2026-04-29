@@ -2,28 +2,26 @@
 	import { onMount } from 'svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 
-	export let selectedImage: string | null = null;
-	export let placeholder: string = 'Click Here or Drag and Drop your Raw Image';
+	export let selectedImages: { file: File; url: string }[] = [];
+	export let placeholder: string = 'Click Here or Drag and Drop your Raw Images (2-3 recommended)';
 	export let className: string = '';
-	export let onFileSelected: ((file: File, imageUrl: string) => void) | undefined = undefined;
-	export let onFileRemoved: (() => void) | undefined = undefined;
+	export let onFilesSelected: ((files: { file: File; url: string }[]) => void) | undefined =
+		undefined;
+	export let onFilesRemoved: (() => void) | undefined = undefined;
 
 	let isDragOver = false;
 	let fileInput: HTMLInputElement;
-	// eslint-disable-next-line
-	let selectedFile: File | null = null;
-	// eslint-disable-next-line
-	let dcraw: any;
+	let dcraw:
+		| ((buffer: Uint8Array, options?: { extractThumbnail?: boolean }) => Uint8Array)
+		| undefined;
 	let isProcessing = false;
-	let isRaw = true;
 	const rawExtensions = ['.arw', '.srf', '.sr2', 'cr2', 'cr3', '.nef', '.nrw', '.raf', '.rw2'];
 
 	onMount(async () => {
 		const script = document.createElement('script');
-		script.src = 'https://cdn.jsdelivr.net/npm/dcraw'; //this dynamically loads dcraw library
+		script.src = 'https://cdn.jsdelivr.net/npm/dcraw';
 		script.onload = () => {
-			// eslint-disable-next-line
-			dcraw = (window as any).dcraw;
+			dcraw = (window as unknown as { dcraw: typeof dcraw }).dcraw;
 		};
 		document.head.appendChild(script);
 	});
@@ -52,7 +50,6 @@
 	}
 
 	function handleClick() {
-		if (selectedImage) return; // No upload functionality when already there is an uploaded image.
 		fileInput?.click();
 	}
 
@@ -69,74 +66,59 @@
 		return rawExtensions.includes(extension);
 	}
 
-	async function processFiles(files: FileList) {
-		const file = files[0]; // first file only
-
-		if (!file) return;
-
-		selectedFile = file;
+	async function processFiles(files: FileList | File[]) {
 		isProcessing = true;
-		isRaw = isRawFile(file.name);
-		try {
-			if (isRaw) {
+		const newImages: { file: File; url: string }[] = [];
+
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
+			if (!isRawFile(file.name)) continue;
+
+			try {
 				if (!dcraw) {
-					isProcessing = false;
-					return;
+					// Wait a bit for dcraw to load if it's not ready
+					await new Promise((resolve) => setTimeout(resolve, 500));
+					if (!dcraw) continue;
 				}
 
-				const reader = new FileReader();
-				reader.onload = (e) => {
-					try {
-						const buf = new Uint8Array(e.target?.result as ArrayBuffer);
+				const arrayBuffer = await file.arrayBuffer();
+				const buf = new Uint8Array(arrayBuffer);
+				const thumbnail = dcraw(buf, { extractThumbnail: true });
+				const blob = new Blob([thumbnail], { type: 'image/jpeg' });
+				const url = URL.createObjectURL(blob);
 
-						const thumbnail = dcraw(buf, { extractThumbnail: true });
-
-						const blob = new Blob([thumbnail], { type: 'image/jpeg' });
-						const imageUrl = URL.createObjectURL(blob);
-
-						selectedImage = imageUrl;
-						isProcessing = false;
-						onFileSelected?.(file, imageUrl);
-					} catch {
-						isProcessing = false;
-					}
-				};
-				reader.readAsArrayBuffer(file);
-			} else if (file.type.startsWith('image/')) {
-				placeholder = "Please upload the Raw file of the image you've selected";
-				isProcessing = false;
-			} else {
-				placeholder = 'Unsupported file type. Please upload a Raw image.';
-				isProcessing = false;
+				newImages.push({ file, url });
+			} catch (error) {
+				console.error('Error processing file:', file.name, error);
 			}
-		} catch (error) {
-			console.error('Error processing file:', error);
-			isProcessing = false;
-		}
-	}
-
-	function removeImage() {
-		// object URL removal(created for RAW thumbnail)
-		if (selectedImage && selectedImage.startsWith('blob:')) {
-			URL.revokeObjectURL(selectedImage);
 		}
 
-		selectedImage = null;
-		selectedFile = null;
+		selectedImages = [...selectedImages, ...newImages];
 		isProcessing = false;
-
-		if (fileInput) {
-			fileInput.value = '';
-		}
-		onFileRemoved?.();
+		onFilesSelected?.(selectedImages);
 	}
 
-	// Clean up object URL if component gets destroyed without user removing the image.
+	function removeImage(index: number) {
+		const removed = selectedImages.splice(index, 1)[0];
+		if (removed && removed.url.startsWith('blob:')) {
+			URL.revokeObjectURL(removed.url);
+		}
+		selectedImages = [...selectedImages];
+		if (selectedImages.length === 0) {
+			if (fileInput) fileInput.value = '';
+			onFilesRemoved?.();
+		} else {
+			onFilesSelected?.(selectedImages);
+		}
+	}
+
 	import { onDestroy } from 'svelte';
 	onDestroy(() => {
-		if (selectedImage && selectedImage.startsWith('blob:')) {
-			URL.revokeObjectURL(selectedImage);
-		}
+		selectedImages.forEach((img) => {
+			if (img.url.startsWith('blob:')) {
+				URL.revokeObjectURL(img.url);
+			}
+		});
 	});
 </script>
 
@@ -158,31 +140,52 @@
 		<div class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-black/20">
 			<div class="text-center">
 				<div class="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div>
-				<div class="text-sm text-white">Processing RAW file...</div>
+				<div class="text-sm text-white">Processing RAW files...</div>
 			</div>
 		</div>
-	{:else if selectedImage}
-		<img
-			src={selectedImage}
-			alt="Selected preview"
-			class="absolute inset-0 h-full w-full rounded-lg object-cover"
-		/>
-		<button
-			on:click|stopPropagation={removeImage}
-			class="absolute top-2 right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
-			aria-label="Remove image"
-		>
-			<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M6 18L18 6M6 6l12 12"
-				/>
-			</svg>
-		</button>
+	{:else if selectedImages.length > 0}
+		<div class="absolute inset-0 z-10 flex flex-wrap gap-2 overflow-auto p-4">
+			{#each selectedImages as img, i (img.url)}
+				<div class="group bg-muted relative h-24 w-24 rounded-md border shadow-sm lg:h-32 lg:w-32">
+					<img src={img.url} alt="Preview" class="h-full w-full rounded-md object-cover" />
+					<button
+						on:click|stopPropagation={() => removeImage(i)}
+						class="absolute -top-2 -right-2 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100"
+						aria-label="Remove image"
+					>
+						<svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M6 18L18 6M6 6l12 12"
+							/>
+						</svg>
+					</button>
+				</div>
+			{/each}
+			<div
+				class="bg-muted/50 hover:bg-muted flex h-24 w-24 items-center justify-center rounded-md border border-dashed transition-colors lg:h-32 lg:w-32"
+			>
+				<svg
+					class="text-muted-foreground h-6 w-6"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M12 4v16m8-8H4"
+					/>
+				</svg>
+			</div>
+		</div>
 	{:else}
-		<div class="absolute inset-0 z-10 flex cursor-pointer items-center justify-center text-center">
+		<div
+			class="absolute inset-0 z-10 flex cursor-pointer items-center justify-center p-4 text-center"
+		>
 			{placeholder}
 		</div>
 	{/if}
@@ -190,6 +193,7 @@
 	<input
 		bind:this={fileInput}
 		type="file"
+		multiple
 		accept={rawExtensions.join(',')}
 		class="hidden"
 		on:change={handleFileInput}

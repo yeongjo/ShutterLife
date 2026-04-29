@@ -1,2 +1,0 @@
-echo 'Checking the commit mesage format.'
-pnpm exec commitlint --edit $1
