@@ -305,6 +305,16 @@
 										<li>Automatic Shutter Count detection</li>
 									</ul>
 								</div>
+							{:else if brand.path === 'canon'}
+								<div class="text-muted-foreground text-sm">
+									Most Canon EOS DSLRs and Mirrorless cameras are supported.
+									<br /><br />
+									Support includes:
+									<ul class="list-inside list-disc mt-2">
+										<li>JPEG, CR2 and CR3 (Raw) files</li>
+										<li>Automatic Shutter Count detection (for supported models)</li>
+									</ul>
+								</div>
 							{:else}
 								<p class="text-muted-foreground text-sm italic">Coming soon...</p>
 							{/if}
@@ -314,7 +324,7 @@
 			{/each}
 
 			<!-- Placeholder brands -->
-			{#each ['Canon'] as brandName}
+			{#each ['Olympus', 'Panasonic'] as brandName}
 				<div class="bg-card/50 pointer-events-none rounded-2xl border border-dashed p-6 opacity-50">
 					<div class="flex items-center justify-between">
 						<span class="text-xl font-bold">{brandName}</span>
@@ -327,4 +337,3 @@
 </div>
 
 <FAQ />
-

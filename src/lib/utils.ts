@@ -16,7 +16,8 @@ export type SupportedBrand = { name: string; path: string };
 export const supportedBrands: SupportedBrand[] = [
 	{ name: 'Sony', path: 'sony' },
 	{ name: 'Fujifilm', path: 'fujifilm' },
-	{ name: 'Nikon', path: 'nikon' }
+	{ name: 'Nikon', path: 'nikon' },
+	{ name: 'Canon', path: 'canon' }
 ];
 
 export const baseRoutes = {

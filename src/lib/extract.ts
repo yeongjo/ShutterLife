@@ -147,6 +147,27 @@ export async function extractMetadata(
 				break;
 			}
 		}
+	} else if (
+		fullView.length > 12 &&
+		fullView[4] === 0x66 &&
+		fullView[5] === 0x74 &&
+		fullView[6] === 0x79 &&
+		fullView[7] === 0x70 &&
+		fullView[8] === 0x63 &&
+		fullView[9] === 0x72 &&
+		fullView[10] === 0x78 &&
+		fullView[11] === 0x20
+	) {
+		// Canon CR3 - Search for TIFF header (49 49 2a 00 or 4d 4d 00 2a)
+		for (let i = 0; i < fullView.length - 4; i++) {
+			if (
+				(fullView[i] === 0x49 && fullView[i + 1] === 0x49 && fullView[i + 2] === 0x2a && fullView[i + 3] === 0x00) ||
+				(fullView[i] === 0x4d && fullView[i + 1] === 0x4d && fullView[i + 2] === 0x00 && fullView[i + 3] === 0x2a)
+			) {
+				tiffOffset = i;
+				break;
+			}
+		}
 	}
 
 	const view = tiffOffset > 0 ? fullView.subarray(tiffOffset) : fullView;
@@ -414,6 +435,34 @@ export async function extractMetadata(
 				if (tag.tag === 0x00a7 && typeof tag.value === 'number') {
 					shutterCount = tag.value;
 					break;
+				}
+				cA += 12;
+				ifdEntries--;
+			}
+		}
+	} else if (
+		make.toUpperCase().includes('CANON') &&
+		makernoteAddr !== null
+	) {
+		// CANON MakerNote
+		// Canon MakerNotes do not have a header, they start directly with IFD tags
+		// Offsets are relative to the start of the TIFF file (view[0])
+		let cA = makernoteAddr;
+		let ifdEntries = 0;
+		if (cA + 2 <= view.length) {
+			ifdEntries = isLE ? view[cA + 1] * 256 + view[cA] : view[cA] * 256 + view[cA + 1];
+			cA += 2;
+			while (ifdEntries > 0 && cA + 12 <= view.length) {
+				const tag = parseTag(view, cA, isLE);
+				// Shutter count on some Canons can be found in various tags depending on the model
+				// 0x0093, 0x0095, 0x00a7, 0x0af1, 0x0d29, 0x0a95
+				const possibleTags = [0x0093, 0x0095, 0x00a7, 0x0af1, 0x0d29, 0x0a95];
+				if (possibleTags.includes(tag.tag) && typeof tag.value === 'number') {
+					// We only take reasonable numbers to avoid picking up LensModel (0x0095) strings etc
+					if (tag.value > 0) {
+						shutterCount = tag.value;
+						break;
+					}
 				}
 				cA += 12;
 				ifdEntries--;
