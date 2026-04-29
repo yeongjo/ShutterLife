@@ -135,7 +135,7 @@
 </svelte:head>
 
 <div
-	class="container mx-auto flex min-h-[calc(100vh-theme(spacing.24))] flex-col gap-8 p-8 lg:flex-row"
+	class="container mx-auto flex flex-col gap-8 p-8 lg:flex-row"
 >
 	<div class="flex flex-col gap-6 lg:w-1/2">
 		<div class="space-y-2">
