@@ -352,8 +352,8 @@ export async function extractMetadata(
 			cA += 2;
 			while (ifdEntries > 0 && cA + 12 <= view.length) {
 				const tag = parseTag(view, cA, isLE);
-				// Tag 0x1405 is ImageCount for Fujifilm
-				if (tag.tag === 0x1405 && typeof tag.value === 'number') {
+				// Tag 0x1438 or 0x1011 is ImageCount for Fujifilm
+				if ((tag.tag === 0x1438 || tag.tag === 0x1011) && typeof tag.value === 'number') {
 					shutterCount = tag.value;
 					break;
 				}
