@@ -142,7 +142,7 @@
 </script>
 
 <div
-	class="border-ring relative h-full w-full rounded-lg border-3 border-dashed {isDragOver
+	class="border-ring relative w-full overflow-hidden rounded-lg border-3 border-dashed {isDragOver
 		? 'bg-muted/50'
 		: ''} {className}"
 	on:dragover={handleDragOver}
@@ -153,17 +153,15 @@
 	tabindex="0"
 	on:keydown={(e) => (e.key === 'Enter' || e.key === ' ' ? handleClick() : null)}
 >
-	<Skeleton class="h-full w-full opacity-0" />
-
 	{#if isProcessing}
-		<div class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-black/20">
+		<div class="flex min-h-[200px] w-full items-center justify-center rounded-lg bg-black/20">
 			<div class="text-center">
 				<div class="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div>
 				<div class="text-sm text-white">Processing files...</div>
 			</div>
 		</div>
 	{:else if selectedImages.length > 0}
-		<div class="absolute inset-0 z-10 flex flex-wrap gap-2 overflow-auto p-4">
+		<div class="flex flex-wrap gap-2 overflow-auto p-4">
 			{#each selectedImages as img, i (img.url)}
 				<div class="group bg-muted relative h-24 w-24 rounded-md border shadow-sm lg:h-32 lg:w-32">
 					<img src={img.url} alt="Preview" class="h-full w-full rounded-md object-cover" />
@@ -203,7 +201,7 @@
 		</div>
 	{:else}
 		<div
-			class="absolute inset-0 z-10 flex cursor-pointer items-center justify-center p-4 text-center"
+			class="flex min-h-[200px] w-full cursor-pointer items-center justify-center p-4 text-center"
 		>
 			{placeholder}
 		</div>

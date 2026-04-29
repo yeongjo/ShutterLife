@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FileUploader from '$lib/components/file-uploader.svelte';
+	import FAQ from '$lib/components/faq.svelte';
 	import { extractSonyShutterCount } from '$lib/extract';
 	import { fade, slide } from 'svelte/transition';
 
@@ -141,7 +142,7 @@
 
 		<FileUploader
 			bind:selectedImages
-			className="aspect-video lg:aspect-square"
+			className="min-h-[200px] lg:min-h-[300px]"
 			onFilesSelected={handleFilesSelected}
 			onFilesRemoved={handleFilesRemoved}
 		/>
@@ -260,24 +261,8 @@
 			</div>
 		</div>
 
-		<div class="bg-muted/50 rounded-2xl p-6">
-			<h3 class="text-muted-foreground mb-4 text-sm font-semibold tracking-wider uppercase">
-				How it works
-			</h3>
-			<ul class="text-muted-foreground space-y-3 text-sm">
-				<li class="flex items-start gap-2">
-					<span class="bg-primary mt-1 h-1.5 w-1.5 shrink-0 rounded-full"></span>
-					We extract the exact shutter count and timestamp from your image files.
-				</li>
-				<li class="flex items-start gap-2">
-					<span class="bg-primary mt-1 h-1.5 w-1.5 shrink-0 rounded-full"></span>
-					By comparing two or more points in time, we calculate your shooting frequency.
-				</li>
-				<li class="flex items-start gap-2">
-					<span class="bg-primary mt-1 h-1.5 w-1.5 shrink-0 rounded-full"></span>
-					Linear extrapolation provides the estimated date for your target shutter count.
-				</li>
-			</ul>
-		</div>
 	</div>
 </div>
+
+<FAQ />
+
