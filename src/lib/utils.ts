@@ -15,7 +15,8 @@ export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & { ref?:
 export type SupportedBrand = { name: string; path: string };
 export const supportedBrands: SupportedBrand[] = [
 	{ name: 'Sony', path: 'sony' },
-	{ name: 'Fujifilm', path: 'fujifilm' }
+	{ name: 'Fujifilm', path: 'fujifilm' },
+	{ name: 'Nikon', path: 'nikon' }
 ];
 
 export const baseRoutes = {

@@ -361,6 +361,64 @@ export async function extractMetadata(
 				ifdEntries--;
 			}
 		}
+	} else if (
+		view[makernoteAddr] === 0x4e &&
+		view[makernoteAddr + 1] === 0x69 &&
+		view[makernoteAddr + 2] === 0x6b &&
+		view[makernoteAddr + 3] === 0x6f &&
+		view[makernoteAddr + 4] === 0x6e
+	) {
+		// NIKON MakerNote
+		// Header is "Nikon" (5 bytes)
+		let nikonView = view.subarray(makernoteAddr);
+		let nikonIsLE = isLE;
+		let nikonOffset = 0;
+
+		if (view[makernoteAddr + 6] === 0x01) {
+			// Version 1
+			nikonOffset = 8;
+		} else if (
+			view[makernoteAddr + 10] === 0x49 &&
+			view[makernoteAddr + 11] === 0x49 &&
+			view[makernoteAddr + 12] === 0x2a &&
+			view[makernoteAddr + 13] === 0x00
+		) {
+			// Version 2/3 with embedded TIFF (LE)
+			nikonView = view.subarray(makernoteAddr + 10);
+			nikonIsLE = true;
+			nikonOffset = nikonView[7] * 16777216 + nikonView[6] * 65536 + nikonView[5] * 256 + nikonView[4];
+		} else if (
+			view[makernoteAddr + 10] === 0x4d &&
+			view[makernoteAddr + 11] === 0x4d &&
+			view[makernoteAddr + 12] === 0x00 &&
+			view[makernoteAddr + 13] === 0x2a
+		) {
+			// Version 2/3 with embedded TIFF (BE)
+			nikonView = view.subarray(makernoteAddr + 10);
+			nikonIsLE = false;
+			nikonOffset = nikonView[4] * 16777216 + nikonView[5] * 65536 + nikonView[6] * 256 + nikonView[7];
+		} else {
+			// Fallback for other variants
+			nikonOffset = 10;
+		}
+
+		cA = nikonOffset;
+		if (cA + 2 <= nikonView.length) {
+			ifdEntries = nikonIsLE
+				? nikonView[cA + 1] * 256 + nikonView[cA]
+				: nikonView[cA] * 256 + nikonView[cA + 1];
+			cA += 2;
+			while (ifdEntries > 0 && cA + 12 <= nikonView.length) {
+				const tag = parseTag(nikonView, cA, nikonIsLE);
+				// Tag 0x00a7 is ShutterCount for Nikon
+				if (tag.tag === 0x00a7 && typeof tag.value === 'number') {
+					shutterCount = tag.value;
+					break;
+				}
+				cA += 12;
+				ifdEntries--;
+			}
+		}
 	}
 
 	return {
