@@ -108,11 +108,29 @@
 					if (!dcraw) continue;
 				}
 
-				const arrayBuffer = await file.arrayBuffer();
-				const buf = new Uint8Array(arrayBuffer);
-				const thumbnail = dcraw(buf, { extractThumbnail: true });
-				const blob = new Blob([thumbnail], { type: 'image/jpeg' });
-				const url = URL.createObjectURL(blob);
+				let url = '';
+				
+				if (extension === '.cr3') {
+					// dcraw does not support CR3, skip it to prevent WASM errors
+					url = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E`;
+				} else {
+					try {
+						const arrayBuffer = await file.arrayBuffer();
+						const buf = new Uint8Array(arrayBuffer);
+						const thumbnail = dcraw(buf, { extractThumbnail: true });
+						
+						if (!thumbnail || thumbnail.length < 100) {
+							throw new Error('Thumbnail too small or invalid');
+						}
+						
+						const blob = new Blob([thumbnail], { type: 'image/jpeg' });
+						url = URL.createObjectURL(blob);
+					} catch (err) {
+						console.warn(`Could not extract thumbnail for ${file.name} using dcraw:`, err);
+						// Fallback SVG for unsupported raw files
+						url = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E`;
+					}
+				}
 
 				newImages.push({ file, url });
 			} catch (error) {

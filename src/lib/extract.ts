@@ -83,10 +83,6 @@ function parseTag(
 		}
 	}
 
-	if (type === 7 && totalSize > 4) {
-		value = grabData(4, arr, pos + 8, 4, isLE);
-	}
-
 	return { tag, format: type, value, size: totalSize };
 }
 
@@ -217,15 +213,15 @@ export async function extractMetadata(
 		loopGuard++;
 	}
 
-	if (!exifAddr || exifAddr >= view.length)
-		return { shutterCount: null, cameraModel: model || null, date: null };
-
-	// 4. Parse EXIF IFD
-	let cA = exifAddr;
-	let ifdEntries = isLE ? view[cA + 1] * 256 + view[cA] : view[cA] * 256 + view[cA + 1];
-	cA += 2;
+	// 4. Parse EXIF IFD if present
+	let cA = exifAddr || 0;
+	let ifdEntries = 0;
 	let makernoteAddr: number | null = null;
 	let dateOriginal: string | null = null;
+
+	if (exifAddr && exifAddr < view.length) {
+		ifdEntries = isLE ? view[cA + 1] * 256 + view[cA] : view[cA] * 256 + view[cA + 1];
+		cA += 2;
 
 	while (ifdEntries > 0 && cA + 12 <= view.length) {
 		const tag = parseTag(view, cA, isLE);
@@ -234,6 +230,8 @@ export async function extractMetadata(
 			dateOriginal = tag.value;
 		cA += 12;
 		ifdEntries--;
+	}
+
 	}
 
 	let date: Date | null = null;
@@ -252,14 +250,12 @@ export async function extractMetadata(
 		}
 	}
 
-	if (!makernoteAddr || makernoteAddr >= view.length)
-		return { shutterCount: null, cameraModel: model || null, date };
-
-	// 5. Parse MakerNote
-	cA = makernoteAddr;
+	// 5. Parse MakerNote if present
+	cA = makernoteAddr || 0;
 	let shutterCount: number | null = null;
 
-	// Detect MakerNote type
+	if (makernoteAddr && makernoteAddr < view.length) {
+		// Detect MakerNote type
 	if (
 		view[makernoteAddr] === 83 &&
 		view[makernoteAddr + 1] === 79 &&
@@ -455,17 +451,99 @@ export async function extractMetadata(
 			while (ifdEntries > 0 && cA + 12 <= view.length) {
 				const tag = parseTag(view, cA, isLE);
 				// Shutter count on some Canons can be found in various tags depending on the model
-				// 0x0093, 0x0095, 0x00a7, 0x0af1, 0x0d29, 0x0a95
-				const possibleTags = [0x0093, 0x0095, 0x00a7, 0x0af1, 0x0d29, 0x0a95];
+				const possibleTags = [0x0093, 0x0095, 0x00a7, 0x0af1, 0x0d29, 0x0a95, 0x0007];
 				if (possibleTags.includes(tag.tag) && typeof tag.value === 'number') {
-					// We only take reasonable numbers to avoid picking up LensModel (0x0095) strings etc
 					if (tag.value > 0) {
 						shutterCount = tag.value;
 						break;
 					}
+				} else if (tag.tag === 0x000d && tag.value instanceof Uint8Array) {
+					// CameraInfo binary block
+					const info = tag.value;
+					let scOffset = -1;
+					const modelName = model || '';
+					
+					if (modelName.includes('EOS R5 ') || modelName.includes('EOS R6 ') || modelName === 'Canon EOS R5' || modelName === 'Canon EOS R6') {
+						scOffset = 0x0af1;
+					} else if (modelName.includes('EOS R6 Mark II') || modelName.includes('EOS R8') || modelName.includes('EOS R50')) {
+						scOffset = 0x0d29;
+					} else if (modelName.includes('G5 X Mark II')) {
+						scOffset = 0x0a95;
+					}
+					
+					if (scOffset > 0 && scOffset + 3 < info.length) {
+						// ShutterCount is a 32-bit little-endian integer in this block
+						shutterCount = info[scOffset] | (info[scOffset+1] << 8) | (info[scOffset+2] << 16) | (info[scOffset+3] << 24);
+						if (shutterCount > 0) break;
+					}
 				}
 				cA += 12;
 				ifdEntries--;
+			}
+		}
+	}
+	}
+
+	// Additional pass for Canon CR3 to check CMT3 for MakerNote data
+	if (!shutterCount && make.toUpperCase().includes('CANON') && fullView.length > 12 && fullView[8] === 0x63 && fullView[9] === 0x72 && fullView[10] === 0x78) {
+		let cmt3Offset = -1;
+		for (let i = 0; i < fullView.length - 8; i++) {
+			if (fullView[i] === 0x43 && fullView[i + 1] === 0x4d && fullView[i + 2] === 0x54 && fullView[i + 3] === 0x33) {
+				cmt3Offset = i + 4;
+				break;
+			}
+		}
+		if (cmt3Offset > 0) {
+			let cmt3TiffOffset = -1;
+			for (let i = cmt3Offset; i < cmt3Offset + 16; i++) {
+				if (
+					(fullView[i] === 0x49 && fullView[i + 1] === 0x49 && fullView[i + 2] === 0x2a && fullView[i + 3] === 0x00) ||
+					(fullView[i] === 0x4d && fullView[i + 1] === 0x4d && fullView[i + 2] === 0x00 && fullView[i + 3] === 0x2a)
+				) {
+					cmt3TiffOffset = i;
+					break;
+				}
+			}
+
+			if (cmt3TiffOffset > 0) {
+				const cmt3View = fullView.subarray(cmt3TiffOffset);
+				const cmt3IsLE = cmt3View[0] === 0x49;
+				let ifdOffset = cmt3IsLE
+					? cmt3View[7] * 16777216 + cmt3View[6] * 65536 + cmt3View[5] * 256 + cmt3View[4]
+					: cmt3View[4] * 16777216 + cmt3View[5] * 65536 + cmt3View[6] * 256 + cmt3View[7];
+				
+				let cA = ifdOffset;
+				if (cA + 2 <= cmt3View.length) {
+					let ifdEntries = cmt3IsLE ? cmt3View[cA + 1] * 256 + cmt3View[cA] : cmt3View[cA] * 256 + cmt3View[cA + 1];
+					cA += 2;
+					while (ifdEntries > 0 && cA + 12 <= cmt3View.length) {
+						const tag = parseTag(cmt3View, cA, cmt3IsLE);
+						const possibleTags = [0x0095, 0x00a7, 0x0af1, 0x0d29, 0x0a95, 0x0007];
+						if (possibleTags.includes(tag.tag) && typeof tag.value === 'number' && tag.value > 0) {
+							shutterCount = tag.value;
+							break;
+						} else if (tag.tag === 0x000d && tag.value instanceof Uint8Array) {
+							const info = tag.value;
+							let scOffset = -1;
+							const modelName = model || '';
+							
+							if (modelName.includes('EOS R5 ') || modelName.includes('EOS R6 ') || modelName === 'Canon EOS R5' || modelName === 'Canon EOS R6') {
+								scOffset = 0x0af1;
+							} else if (modelName.includes('EOS R6 Mark II') || modelName.includes('EOS R8') || modelName.includes('EOS R50')) {
+								scOffset = 0x0d29;
+							} else if (modelName.includes('G5 X Mark II')) {
+								scOffset = 0x0a95;
+							}
+							
+							if (scOffset > 0 && scOffset + 3 < info.length) {
+								shutterCount = info[scOffset] | (info[scOffset+1] << 8) | (info[scOffset+2] << 16) | (info[scOffset+3] << 24);
+								if (shutterCount > 0) break;
+							}
+						}
+						cA += 12;
+						ifdEntries--;
+					}
+				}
 			}
 		}
 	}
