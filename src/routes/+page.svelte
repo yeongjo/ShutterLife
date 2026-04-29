@@ -285,6 +285,16 @@
 										</svg>
 									</a>
 								</div>
+							{:else if brand.path === 'fujifilm'}
+								<div class="text-muted-foreground text-sm">
+									Most modern Fujifilm cameras (X-series, GFX, etc.) are supported.
+									<br /><br />
+									Support includes:
+									<ul class="list-inside list-disc mt-2">
+										<li>JPEG and RAF (Raw) files</li>
+										<li>Automatic Shutter Count detection (ImageCount)</li>
+									</ul>
+								</div>
 							{:else}
 								<p class="text-muted-foreground text-sm italic">Coming soon...</p>
 							{/if}
@@ -294,7 +304,7 @@
 			{/each}
 
 			<!-- Placeholder brands -->
-			{#each ['Canon', 'Nikon', 'Fujifilm'] as brandName}
+			{#each ['Canon', 'Nikon'] as brandName}
 				<div class="bg-card/50 pointer-events-none rounded-2xl border border-dashed p-6 opacity-50">
 					<div class="flex items-center justify-between">
 						<span class="text-xl font-bold">{brandName}</span>

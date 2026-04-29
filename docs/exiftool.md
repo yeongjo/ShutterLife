@@ -8,4 +8,4 @@ File Type	Support	Description	EXIF	IPTC	XMP	ICC1	C2PA	Other
 [] RW2	R/W	Panasonic RAW 2 (TIFF-based)	R/W/C	R/W/C	R/W/C	R/W/C	R/D	R/W PanasonicRaw Panasonic
 [] RWL	R/W	Leica RAW (TIFF-based)	R/W/C	R/W/C	R/W/C	R/W/C	R/D	R/W PanasonicRaw Panasonic
 [] RAW	R/W	Panasonic RAW (TIFF-based)	R/W/C	R/W/C	R/W/C	R/W/C	R/D	R/W PanasonicRaw Panasonic
-[] RAF	R/W	FujiFilm RAW Format	R/W/C	R/W/C	R/W/C	R/W/C	R/D	R/W FujiFilm
+[x] RAF	R/W	FujiFilm RAW Format	R/W/C	R/W/C	R/W/C	R/W/C	R/D	R/W FujiFilm
