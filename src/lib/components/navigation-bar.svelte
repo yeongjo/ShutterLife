@@ -33,41 +33,9 @@
 		<NavigationMenu.Item
 			class={cn('font-semibold', page.url.pathname === baseRoutes.app && 'bg-accent rounded-lg')}
 		>
-			<NavigationMenu.Link href={base + baseRoutes.app}>App</NavigationMenu.Link>
+			<NavigationMenu.Link href={base + baseRoutes.app}>Home</NavigationMenu.Link>
 		</NavigationMenu.Item>
 
-		<!-- Supported Devices tab is hidden on mobile, shown on larger screens -->
-		<NavigationMenu.Item class="relative hidden md:block">
-			<NavigationMenu.Trigger
-				class={cn(
-					page.url.pathname.startsWith(base + baseRoutes.supportedDevices) && 'bg-accent rounded-lg'
-				)}>Supported Devices</NavigationMenu.Trigger
-			>
-			<NavigationMenu.Content
-				class="bg-background/80 absolute top-full left-0 mt-2 min-w-[200px] rounded-lg border p-2 shadow-lg backdrop-blur-sm md:w-auto"
-			>
-				{#each supportedBrands as brand (brand.path)}
-					<NavigationMenu.Link
-						href={base + baseRoutes.supportedDevices + '/' + brand.path}
-						class={cn(
-							'block w-full',
-							page.url.pathname.startsWith(base + baseRoutes.supportedDevices + brand.path) &&
-								'bg-accent rounded-lg'
-						)}>{brand.name}</NavigationMenu.Link
-					>
-				{/each}
-			</NavigationMenu.Content>
-		</NavigationMenu.Item>
-
-		<!-- FAQ and About tabs are hidden on mobile, shown on larger screens -->
-		<NavigationMenu.Item
-			class={cn(
-				'hidden font-semibold md:block',
-				page.url.pathname === baseRoutes.faq && 'bg-accent rounded-lg'
-			)}
-		>
-			<NavigationMenu.Link href={base + baseRoutes.faq}>FAQ</NavigationMenu.Link>
-		</NavigationMenu.Item>
 		<NavigationMenu.Item
 			class={cn(
 				'hidden font-semibold md:block',

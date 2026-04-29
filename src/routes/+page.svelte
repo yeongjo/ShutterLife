@@ -3,6 +3,10 @@
 	import FAQ from '$lib/components/faq.svelte';
 	import { extractSonyShutterCount } from '$lib/extract';
 	import { fade, slide } from 'svelte/transition';
+	import { baseRoutes, supportedBrands } from '$lib/utils';
+	import { base } from '$app/paths';
+	import { sonyModels } from '$lib/constants';
+	import * as NavigationMenu from '$lib/components/ui/navigation-menu';
 
 	let selectedImages: { file: File; url: string }[] = [];
 	let imageDataList: {
@@ -15,6 +19,7 @@
 	let targetShutterCount = 200000;
 	let predictionDate: Date | null = null;
 	let dailyAverage: number | null = null;
+	let expandedBrand: string | null = null;
 
 	const targetOptions = [
 		{ label: '50,000 (5만)', value: 50000 },
@@ -229,6 +234,75 @@
 			</div>
 		</div>
 
+	</div>
+</div>
+
+<div class="container mx-auto mb-16 px-8">
+	<div class="space-y-8">
+		<div class="text-center">
+			<h2 class="text-3xl font-bold tracking-tight">Supported Devices</h2>
+			<p class="text-muted-foreground mt-2">
+				Check if your camera is supported. More brands coming soon.
+			</p>
+		</div>
+
+		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+			{#each supportedBrands as brand}
+				<div class="bg-card group overflow-hidden rounded-2xl border shadow-sm transition-all hover:shadow-md">
+					<button
+						class="flex w-full items-center justify-between p-6 text-left"
+						onclick={() => (expandedBrand = expandedBrand === brand.path ? null : brand.path)}
+					>
+						<span class="text-xl font-bold">{brand.name}</span>
+						<svg
+							class="h-5 w-5 transition-transform duration-200 {expandedBrand === brand.path ? 'rotate-180' : ''}"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+						</svg>
+					</button>
+
+					{#if expandedBrand === brand.path}
+						<div transition:slide={{ duration: 300 }} class="border-t bg-muted/30 px-6 py-4">
+							{#if brand.path === 'sony'}
+								<div class="grid grid-cols-2 gap-2 text-sm md:grid-cols-3">
+									{#each Object.values(sonyModels) as model}
+										<div class="text-muted-foreground hover:text-foreground transition-colors">
+											{model.name}
+										</div>
+									{/each}
+								</div>
+								<div class="mt-4 pt-4 border-t">
+									<a
+										href="{base}{baseRoutes.supportedDevices}/{brand.path}"
+										class="text-primary hover:underline text-sm font-semibold inline-flex items-center gap-1"
+									>
+										View detailed list
+										<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+										</svg>
+									</a>
+								</div>
+							{:else}
+								<p class="text-muted-foreground text-sm italic">Coming soon...</p>
+							{/if}
+						</div>
+					{/if}
+				</div>
+			{/each}
+
+			<!-- Placeholder brands -->
+			{#each ['Canon', 'Nikon', 'Fujifilm'] as brandName}
+				<div class="bg-card/50 pointer-events-none rounded-2xl border border-dashed p-6 opacity-50">
+					<div class="flex items-center justify-between">
+						<span class="text-xl font-bold">{brandName}</span>
+						<span class="bg-muted rounded-full px-3 py-1 text-xs font-medium">Coming soon</span>
+					</div>
+				</div>
+			{/each}
+		</div>
 	</div>
 </div>
 
