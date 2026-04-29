@@ -59,7 +59,7 @@ function parseTag(
 	arr: Uint8Array,
 	pos: number,
 	isLE: boolean
-): { tag: number; format: number; value: TagValue; size: number } {
+): { tag: number; format: number; value: TagValue; size: number; offset?: number } {
 	const tag = isLE ? arr[pos + 1] * 256 + arr[pos] : arr[pos] * 256 + arr[pos + 1];
 	const type = isLE ? arr[pos + 3] * 256 + arr[pos + 2] : arr[pos + 2] * 256 + arr[pos + 3];
 	const count = isLE
@@ -74,16 +74,21 @@ function parseTag(
 	if (type === 5 || type === 10) typeSize = 8;
 	const totalSize = count * typeSize;
 
+	let dataOffset: number | undefined = undefined;
+
 	if (totalSize <= 4) {
 		value = grabData(type, arr, pos + 8, totalSize, isLE);
 	} else {
 		const offset = grabData(4, arr, pos + 8, 4, isLE);
-		if (typeof offset === 'number' && offset + totalSize <= arr.length) {
-			value = grabData(type, arr, offset, totalSize, isLE);
+		if (typeof offset === 'number') {
+			dataOffset = offset;
+			if (offset + totalSize <= arr.length) {
+				value = grabData(type, arr, offset, totalSize, isLE);
+			}
 		}
 	}
 
-	return { tag, format: type, value, size: totalSize };
+	return { tag, format: type, value, size: totalSize, offset: dataOffset };
 }
 
 // Main extraction function
@@ -225,7 +230,7 @@ export async function extractMetadata(
 
 	while (ifdEntries > 0 && cA + 12 <= view.length) {
 		const tag = parseTag(view, cA, isLE);
-		if (tag.tag === 0x927c && typeof tag.value === 'number') makernoteAddr = tag.value;
+		if (tag.tag === 0x927c) makernoteAddr = tag.offset !== undefined ? tag.offset : (typeof tag.value === 'number' ? tag.value : null);
 		if ((tag.tag === 0x9003 || tag.tag === 0x9004) && typeof tag.value === 'string')
 			dateOriginal = tag.value;
 		cA += 12;
