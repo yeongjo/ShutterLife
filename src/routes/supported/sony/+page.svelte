@@ -24,8 +24,8 @@
 </script>
 
 <svelte:head>
-	<title>Support - Sony | Shuttersnap</title>
-	<meta name="description" content="Sony cameras supported by Shuttersnap." />
+	<title>Support - Sony | ShutterLife</title>
+	<meta name="description" content="Sony cameras supported by ShutterLife." />
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-10">

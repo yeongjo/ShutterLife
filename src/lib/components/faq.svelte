@@ -3,24 +3,34 @@
 
 	const faqs = [
 		{
+			question: 'What is ShutterLife?',
+			answer:
+				'ShutterLife is a free web tool that checks your camera\'s shutter count and predicts remaining life using original RAW or JPEG files.'
+		},
+		{
+			question: 'What is Shutter Count?',
+			answer:
+				'It\'s the number of mechanical shutter actuations. Manufacturers define an expected lifetime for these, making it a key factor in determining your camera\'s longevity and resale value.'
+		},
+		{
+			question: 'Are my photos uploaded to a server?',
+			answer:
+				'No. All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy.'
+		},
+		{
+			question: 'Which file types and cameras are supported?',
+			answer:
+				'We support original RAW (.arw) and JPEG files. Currently optimized for Sony Alpha series, with more brands and models being added regularly.'
+		},
+		{
+			question: 'How should I transfer images for accurate data?',
+			answer:
+				'Use original, unedited files directly from your camera. Editing software or certain transfer methods often remove the embedded shutter count data.'
+		},
+		{
 			question: 'How does the prediction work?',
 			answer:
-				'We extract the exact shutter count and timestamp from your uploaded image files. By comparing two or more points in time, we calculate your average daily shooting frequency. We then use linear extrapolation to estimate the date when your camera will reach your selected target shutter count.'
-		},
-		{
-			question: 'Which camera models are supported?',
-			answer:
-				'Currently, we provide optimized support for Sony Alpha series cameras (RAW and JPEG). We are working on adding support for other manufacturers like Canon, Nikon, and Fujifilm in the future.'
-		},
-		{
-			question: 'Is my data safe?',
-			answer:
-				'Yes. All image processing and EXIF extraction happen locally in your browser. Your photos are never uploaded to any server, ensuring complete privacy.'
-		},
-		{
-			question: 'How accurate is the estimated date?',
-			answer:
-				'The accuracy depends on how representative your uploaded images are of your typical usage. For the most accurate prediction, upload images spanning a longer period (e.g., several months apart).'
+				'By comparing the shutter count and timestamps of two or more images, we calculate your average usage rate to estimate when you\'ll reach future shutter milestones.'
 		}
 	];
 
@@ -34,7 +44,7 @@
 <section class="mt-16 w-full max-w-4xl mx-auto px-4 pb-24">
 	<div class="text-center mb-12">
 		<h2 class="text-3xl font-bold tracking-tight mb-4">Frequently Asked Questions</h2>
-		<p class="text-muted-foreground">Everything you need to know about Shuttersnap.</p>
+		<p class="text-muted-foreground">Everything you need to know about ShutterLife.</p>
 	</div>
 
 	<div class="space-y-4">

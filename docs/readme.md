@@ -1,4 +1,4 @@
-# 📸 Shuttersnap
+# 📸 ShutterLife
 
 [![Build Status](https://img.shields.io/badge/status-active-success.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
@@ -7,7 +7,7 @@
 
 ## 🌟 Overview
 
-**Shuttersnap** is a client-side web application that extracts shutter count information from camera RAW files without uploading them to any server. Built with Svelte and powered by the dcraw library, it processes files entirely in your browser, ensuring complete privacy and instant results.
+**ShutterLife** is a client-side web application that extracts shutter count information from camera RAW files without uploading them to any server. Built with Svelte and powered by the dcraw library, it processes files entirely in your browser, ensuring complete privacy and instant results.
 
 ### ✨ Key Features
 
@@ -21,7 +21,7 @@
 
 ## 🚀 Live Demo
 
-Visit [Shuttersnap](https://chathura-de-silva.github.io/Shuttersnap/) to try it out instantly!
+Visit [ShutterLife](https://chathura-de-silva.github.io/ShutterLife/) to try it out instantly!
 
 ## 🛠️ Technical Architecture
 
@@ -42,7 +42,7 @@ Visit [Shuttersnap](https://chathura-de-silva.github.io/Shuttersnap/) to try it 
 ## 🏗️ Project Structure
 
 ```
-shuttersnap/
+ShutterLife/
 ├── .github/workflows/          # GitHub Actions CI/CD
 ├── .husky/                     # Git hooks for code quality
 ├── .svelte-kit/               # SvelteKit generated files
@@ -53,7 +53,6 @@ shuttersnap/
 │   ├── lib/
 │   │   ├── components/        # Reusable Svelte components
 │   │   │   ├── file-uploader.svelte  # File picker area component
-│   │   │   └── BuyMeACoffeeButton.svelte
 │   │   ├── constants.ts       # Camera models and configurations
 │   │   ├── extract.ts         # EXIF extraction logic
 │   │   └── utils.ts          # Some common utilities
@@ -87,8 +86,8 @@ shuttersnap/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/chathura-de-silva/Shuttersnap.git
-   cd Shuttersnap
+   git clone https://github.com/chathura-de-silva/ShutterLife.git
+   cd ShutterLife
    ```
 
 2. **Install dependencies**
@@ -210,16 +209,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: Report bugs via [GitHub Issues](https://github.com/chathura-de-silva/Shuttersnap/issues)
+- **Issues**: Report bugs via [GitHub Issues](https://github.com/chathura-de-silva/ShutterLife/issues)
 
   - Please use relavant labels.
   - Request new models only from currently supported brands
   - Check beforehand to avoid duplicated issues.
 
-- **Discussions**: Join discussions in [GitHub Discussions](https://github.com/chathura-de-silva/Shuttersnap/discussions)
+- **Discussions**: Join discussions in [GitHub Discussions](https://github.com/chathura-de-silva/ShutterLife/discussions)
 
 <div align="center">
 
-**[Website](https://chathuradesilva.me)** • **[GitHub](https://github.com/chathura-de-silva)** • **[Issues](https://github.com/chathura-de-silva/Shuttersnap/issues)**
+**[Website](https://chathuradesilva.me)** • **[GitHub](https://github.com/chathura-de-silva)** • **[Issues](https://github.com/chathura-de-silva/ShutterLife/issues)**
 
 </div>

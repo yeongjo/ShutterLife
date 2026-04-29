@@ -122,7 +122,7 @@
 </script>
 
 <svelte:head>
-	<title>Shuttersnap - Predict your shutter life</title>
+	<title>ShutterLife - Predict your shutter life</title>
 	<meta
 		name="description"
 		content="Calculate and predict when your camera will reach its shutter life limit."

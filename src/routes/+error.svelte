@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>{page.status} Error | Shuttersnap</title>
+	<title>{page.status} Error | ShutterLife</title>
 </svelte:head>
 
 <div
@@ -33,7 +33,7 @@
 	</div>
 	<div class="text-muted-foreground mt-8 text-center text-xs">
 		If you believe this is a bug, please let me know by <a
-			href="https://github.com/chathura-de-silva/Shuttersnap/issues"
+			href="https://github.com/chathura-de-silva/ShutterLife/issues"
 			target="_blank"
 			class="text-primary hover:text-primary/80 underline">opening an issue here.</a
 		>.

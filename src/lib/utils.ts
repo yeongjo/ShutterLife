@@ -26,5 +26,5 @@ export const baseRoutes = {
 	supportedDevices: '/supported',
 	faq: '/faq',
 	about: '/about',
-	github: 'https://github.com/chathura-de-silva/Shuttersnap'
+	github: 'https://github.com/chathura-de-silva/ShutterLife'
 } as const;
