@@ -76,6 +76,12 @@
 		<div class="text-muted-foreground pt-8 text-center text-sm italic">
 			Your privacy is our priority. We believe in tools that respect your data and your time.
 		</div>
+
+		<div class="mt-8 text-center text-sm text-muted-foreground opacity-70">
+			<p>
+				Copyright (c) 2025 <a href="https://github.com/chathura-de-silva/Shuttersnap" target="_blank" rel="noopener noreferrer" class="hover:text-primary underline-offset-4 transition-colors hover:underline">Chathura De Silva</a>
+			</p>
+		</div>
 	</div>
 </div>
 
