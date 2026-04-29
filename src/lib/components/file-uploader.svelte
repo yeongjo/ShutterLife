@@ -172,7 +172,7 @@
 		<div class="flex flex-wrap gap-2 overflow-auto p-4">
 			{#each selectedImages as img, i (img.url)}
 				{@const metadata = imageDataList.find((d) => d.url === img.url)}
-				<div class="group bg-muted relative h-24 w-24 rounded-md border shadow-sm lg:h-32 lg:w-32">
+				<div class="group bg-muted relative flex-1 h-24 min-w-[6rem] rounded-md border shadow-sm lg:h-32 lg:min-w-[8rem]">
 					<img src={img.url} alt="Preview" class="h-full w-full rounded-md object-cover" />
 
 					{#if metadata}
@@ -229,7 +229,7 @@
 				</div>
 			{/each}
 			<div
-				class="bg-muted/50 hover:bg-muted flex h-24 w-24 items-center justify-center rounded-md border border-dashed transition-colors lg:h-32 lg:w-32"
+				class="bg-muted/50 hover:bg-muted flex flex-1 h-24 min-w-[6rem] items-center justify-center rounded-md border border-dashed transition-colors lg:h-32 lg:min-w-[8rem]"
 			>
 				<svg
 					class="text-muted-foreground h-6 w-6"
