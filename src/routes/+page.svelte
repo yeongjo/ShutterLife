@@ -142,45 +142,13 @@
 
 		<FileUploader
 			bind:selectedImages
+			{imageDataList}
 			className="min-h-[200px] lg:min-h-[300px]"
 			onFilesSelected={handleFilesSelected}
 			onFilesRemoved={handleFilesRemoved}
 		/>
 
-		{#if imageDataList.length > 0}
-			<div class="space-y-4" transition:slide>
-				<h2 class="text-xl font-semibold">Extracted Data</h2>
-				<div class="grid gap-4 sm:grid-cols-2">
-					{#each imageDataList as data (data.url)}
-						<div
-							class="bg-card flex flex-col rounded-xl border p-4 shadow-sm transition-all hover:shadow-md"
-						>
-							<div class="mb-2 flex items-center justify-between">
-								<span
-									class="text-muted-foreground truncate text-xs font-medium"
-									title={data.fileName}
-								>
-									{data.fileName}
-								</span>
-								{#if data.shutterCount}
-									<span
-										class="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-bold"
-									>
-										{data.shutterCount.toLocaleString()}
-									</span>
-								{/if}
-							</div>
-							<div class="space-y-1">
-								<p class="text-sm font-semibold">{data.cameraModel || 'Unknown Model'}</p>
-								<p class="text-muted-foreground text-xs">
-									{data.date ? data.date.toLocaleString() : 'No date found'}
-								</p>
-							</div>
-						</div>
-					{/each}
-				</div>
-			</div>
-		{/if}
+
 	</div>
 
 	<div class="flex flex-col gap-8 lg:w-1/2">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 
 	export let selectedImages: { file: File; url: string }[] = [];
@@ -8,6 +9,13 @@
 	export let onFilesSelected: ((files: { file: File; url: string }[]) => void) | undefined =
 		undefined;
 	export let onFilesRemoved: (() => void) | undefined = undefined;
+	export let imageDataList: {
+		shutterCount: number | null;
+		cameraModel: string | null;
+		date: Date | null;
+		url: string;
+		fileName: string;
+	}[] = [];
 
 	let isDragOver = false;
 	let fileInput: HTMLInputElement;
@@ -163,11 +171,50 @@
 	{:else if selectedImages.length > 0}
 		<div class="flex flex-wrap gap-2 overflow-auto p-4">
 			{#each selectedImages as img, i (img.url)}
+				{@const metadata = imageDataList.find((d) => d.url === img.url)}
 				<div class="group bg-muted relative h-24 w-24 rounded-md border shadow-sm lg:h-32 lg:w-32">
 					<img src={img.url} alt="Preview" class="h-full w-full rounded-md object-cover" />
+
+					{#if metadata}
+						<div
+							class="absolute inset-0 flex flex-col justify-between p-1.5 pointer-events-none"
+							transition:fade={{ duration: 200 }}
+						>
+							{#if metadata.shutterCount}
+								<div class="flex justify-start">
+									<span
+										class="bg-black/60 text-white backdrop-blur-md rounded-md px-1.5 py-0.5 text-[10px] font-bold border border-white/20"
+									>
+										{metadata.shutterCount.toLocaleString()}
+									</span>
+								</div>
+							{/if}
+
+							<div class="space-y-0.5">
+								{#if metadata.cameraModel}
+									<p
+										class="text-white text-[10px] font-bold leading-tight drop-shadow-md truncate bg-black/40 px-1 rounded-sm backdrop-blur-sm"
+									>
+										{metadata.cameraModel}
+									</p>
+								{/if}
+								{#if metadata.date}
+									<p
+										class="text-white/90 text-[8px] leading-tight drop-shadow-md truncate bg-black/40 px-1 rounded-sm backdrop-blur-sm"
+									>
+										{metadata.date.toLocaleDateString(undefined, {
+											month: 'short',
+											day: 'numeric'
+										})}
+									</p>
+								{/if}
+							</div>
+						</div>
+					{/if}
+
 					<button
 						on:click|stopPropagation={() => removeImage(i)}
-						class="absolute -top-2 -right-2 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100"
+						class="absolute -top-2 -right-2 z-30 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:scale-110 group-hover:opacity-100 lg:opacity-0"
 						aria-label="Remove image"
 					>
 						<svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
