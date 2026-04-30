@@ -261,14 +261,18 @@ export async function extractMetadata(
 
 	if (makernoteAddr && makernoteAddr < view.length) {
 		// Detect MakerNote type
-	if (
-		view[makernoteAddr] === 83 &&
-		view[makernoteAddr + 1] === 79 &&
-		view[makernoteAddr + 2] === 78 &&
-		view[makernoteAddr + 3] === 89
-	) {
+	if (make.toUpperCase().includes('SONY')) {
 		// SONY MakerNote
-		cA = makernoteAddr + 12;
+		if (
+			view[makernoteAddr] === 83 &&
+			view[makernoteAddr + 1] === 79 &&
+			view[makernoteAddr + 2] === 78 &&
+			view[makernoteAddr + 3] === 89
+		) {
+			cA = makernoteAddr + 12;
+		} else {
+			cA = makernoteAddr;
+		}
 
 		let wantedTag: number | null = null;
 		let wantedAddr: number | null = null;
@@ -314,33 +318,36 @@ export async function extractMetadata(
 			cA += 2;
 			while (ifdEntries > 0 && cA + 12 <= view.length) {
 				const tag = parseTag(view, cA, isLE);
-				if (tag.tag === wantedTag && typeof tag.value === 'number') {
-					if (wantedAddr !== null) {
-						const countPos = tag.value + wantedAddr;
-						if (countPos + 3 <= view.length) {
-							if (decipher) {
-								shutterCount =
-									doB(view[countPos]) + doB(view[countPos + 1]) * 256 + doB(view[countPos + 2]) * 65536;
-							} else {
-								shutterCount = view[countPos] + view[countPos + 1] * 256 + view[countPos + 2] * 65536;
-							}
-						}
-					} else if (tag.tag === 0x9050) {
-						for (const addr of [58, 50, 10]) {
-							const countPos = tag.value + addr;
+				if (tag.tag === wantedTag) {
+					const tagOffset = tag.offset !== undefined ? tag.offset : (typeof tag.value === 'number' ? tag.value : null);
+					if (tagOffset !== null) {
+						if (wantedAddr !== null) {
+							const countPos = tagOffset + wantedAddr;
 							if (countPos + 3 <= view.length) {
-								const val =
-									doB(view[countPos]) +
-									doB(view[countPos + 1]) * 256 +
-									doB(view[countPos + 2]) * 65536;
-								if (val > 0 && val < 2000000) {
-									shutterCount = val;
-									break;
+								if (decipher) {
+									shutterCount =
+										doB(view[countPos]) + doB(view[countPos + 1]) * 256 + doB(view[countPos + 2]) * 65536;
+								} else {
+									shutterCount = view[countPos] + view[countPos + 1] * 256 + view[countPos + 2] * 65536;
+								}
+							}
+						} else if (tag.tag === 0x9050) {
+							for (const addr of [58, 50, 10]) {
+								const countPos = tagOffset + addr;
+								if (countPos + 3 <= view.length) {
+									const val =
+										doB(view[countPos]) +
+										doB(view[countPos + 1]) * 256 +
+										doB(view[countPos + 2]) * 65536;
+									if (val > 0 && val < 2000000) {
+										shutterCount = val;
+										break;
+									}
 								}
 							}
 						}
+						if (shutterCount !== null) break;
 					}
-					if (shutterCount !== null) break;
 				}
 				cA += 12;
 				ifdEntries--;
