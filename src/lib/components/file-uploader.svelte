@@ -77,8 +77,9 @@
 		const target = event.target as HTMLInputElement;
 		const files = target.files;
 		if (files && files.length > 0) {
-			processFiles(files);
+			processFiles(Array.from(files));
 		}
+		target.value = '';
 	}
 
 	function isSupportedFile(fileName: string): boolean {
