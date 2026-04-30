@@ -6,7 +6,6 @@
 	import { baseRoutes, supportedBrands } from '$lib/utils';
 	import { base } from '$app/paths';
 	import { sonyModels } from '$lib/constants';
-	import * as NavigationMenu from '$lib/components/ui/navigation-menu';
 
 	let selectedImages: { file: File; url: string }[] = [];
 	let imageDataList: {
@@ -22,16 +21,16 @@
 	let expandedBrand: string | null = null;
 
 	const targetOptions = [
-		{ label: '50,000 (5만)', value: 50000 },
-		{ label: '100,000 (10만)', value: 100000 },
-		{ label: '200,000 (20만)', value: 200000 },
-		{ label: '300,000 (30만)', value: 300000 },
-		{ label: '400,000 (40만)', value: 400000 },
-		{ label: '500,000 (50만)', value: 500000 },
-		{ label: '600,000 (60만)', value: 600000 },
-		{ label: '700,000 (70만)', value: 700000 },
-		{ label: '800,000 (80만)', value: 800000 },
-		{ label: '1,000,000 (100만)', value: 1000000 }
+		{ label: '50,000', value: 50000 },
+		{ label: '100,000', value: 100000 },
+		{ label: '200,000', value: 200000 },
+		{ label: '300,000', value: 300000 },
+		{ label: '400,000', value: 400000 },
+		{ label: '500,000', value: 500000 },
+		{ label: '600,000', value: 600000 },
+		{ label: '700,000', value: 700000 },
+		{ label: '800,000', value: 800000 },
+		{ label: '1,000,000', value: 1000000 }
 	];
 
 	async function handleFilesSelected(images: { file: File; url: string }[]) {
@@ -43,7 +42,6 @@
 			})
 		);
 
-		// Sort by date automatically so the list and calculation are consistent
 		imageDataList = extracted.sort((a, b) => {
 			if (!a.date) return 1;
 			if (!b.date) return -1;
@@ -71,7 +69,6 @@
 			return;
 		}
 
-		// validData is already sorted because imageDataList is sorted
 		const earliest = validData[0];
 		const latest = validData[validData.length - 1];
 
@@ -108,7 +105,7 @@
 		if (!targetDate) return '';
 		const now = new Date();
 		const diff = targetDate.getTime() - now.getTime();
-		if (diff <= 0) return 'Goal reached!';
+		if (diff <= 0) return 'Goal reached';
 
 		const totalDays = Math.ceil(diff / (1000 * 60 * 60 * 24));
 		const years = Math.floor(totalDays / 365);
@@ -116,146 +113,131 @@
 		const days = (totalDays % 365) % 30;
 
 		const parts = [];
-		if (years > 0) parts.push(`${years} year${years > 1 ? 's' : ''}`);
-		if (months > 0) parts.push(`${months} month${months > 1 ? 's' : ''}`);
-		if (days > 0 || parts.length === 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+		if (years > 0) parts.push(`${years}y`);
+		if (months > 0) parts.push(`${months}mo`);
+		if (days > 0 || parts.length === 0) parts.push(`${days}d`);
 
-		return `${parts.join(' ')} (${totalDays.toLocaleString()} days)`;
+		return `${parts.join(' ')} · ${totalDays.toLocaleString()} days`;
 	}
 
 	$: if (targetShutterCount) calculatePrediction();
 </script>
 
 <svelte:head>
-	<title>ShutterLife - Predict your shutter life</title>
+	<title>ShutterLife — Predict your shutter life</title>
 	<meta
 		name="description"
 		content="Calculate and predict when your camera will reach its shutter life limit."
 	/>
 </svelte:head>
 
-<div
-	class="container mx-auto flex flex-col gap-8 p-8 lg:flex-row"
->
-	<div class="flex flex-col gap-6 lg:w-1/2">
-		<div class="space-y-2">
-			<h1 class="text-3xl font-bold tracking-tight">Upload Images</h1>
-			<p class="text-muted-foreground">
-				Upload 2 or more images (RAW or JPEG) to calculate your daily usage and predict shutter life.
+<!-- Hero -->
+<div class="border-b">
+	<div class="container mx-auto px-6 py-12 md:py-16">
+		<div class="max-w-2xl">
+			<p class="text-muted-foreground mb-3 text-xs font-medium tracking-widest uppercase">Shutter count predictor</p>
+			<h1 class="text-4xl font-bold tracking-tight md:text-5xl">
+				How long will your<br />shutter last?
+			</h1>
+			<p class="text-muted-foreground mt-4 text-base leading-relaxed">
+				Upload 2+ images from your camera. ShutterLife reads the embedded shutter count
+				and timestamp to estimate when you'll hit your limit.
 			</p>
 		</div>
-
-		<FileUploader
-			bind:selectedImages
-			{imageDataList}
-			className="min-h-[200px] lg:min-h-[300px]"
-			onFilesSelected={handleFilesSelected}
-			onFilesRemoved={handleFilesRemoved}
-		/>
-
-
 	</div>
+</div>
 
-	<div class="flex flex-col gap-8 lg:w-1/2">
-		<div class="bg-card rounded-2xl border p-8 shadow-lg ring-1 ring-black/5 dark:ring-white/5">
-			<div class="mb-8 space-y-4">
-				<h2 class="text-2xl font-bold">Prediction Settings</h2>
-				<div class="space-y-2">
-					<label for="target" class="text-sm leading-none font-medium">Target Shutter Count</label>
-					<select
-						id="target"
-						bind:value={targetShutterCount}
-						class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-12 w-full items-center justify-between rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-					>
-						{#each targetOptions as option (option.value)}
-							<option value={option.value}>{option.label}</option>
-						{/each}
-					</select>
-				</div>
+<!-- Main tool -->
+<div class="container mx-auto px-6 py-10">
+	<div class="grid gap-8 lg:grid-cols-2">
+		<!-- Left: upload -->
+		<div class="flex flex-col gap-5">
+			<FileUploader
+				bind:selectedImages
+				{imageDataList}
+				className="min-h-[240px] lg:min-h-[320px]"
+				onFilesSelected={handleFilesSelected}
+				onFilesRemoved={handleFilesRemoved}
+			/>
+		</div>
+
+		<!-- Right: prediction -->
+		<div class="flex flex-col gap-6">
+			<!-- Target setting -->
+			<div>
+				<label for="target" class="text-muted-foreground mb-2 block text-xs font-medium tracking-widest uppercase">
+					Shutter target
+				</label>
+				<select
+					id="target"
+					bind:value={targetShutterCount}
+					class="border-input bg-background h-10 w-full rounded-md border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+				>
+					{#each targetOptions as option (option.value)}
+						<option value={option.value}>{option.label}</option>
+					{/each}
+				</select>
 			</div>
 
-			<div class="space-y-6">
-				<div class="text-center">
-					<h3 class="text-muted-foreground text-sm font-medium tracking-wider uppercase">
-						Predicted Goal Reach Date
-					</h3>
-					<div class="mt-2 flex h-24 items-center justify-center">
-						{#if predictionDate}
-							<div in:fade class="space-y-2">
-								<p class="text-primary text-4xl font-extrabold tracking-tight lg:text-5xl">
-									{predictionDate.toLocaleDateString(undefined, {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric'
-									})}
-								</p>
-								{#if dailyAverage}
-									<p class="text-muted-foreground text-sm">
-										Based on your average of <span class="text-foreground font-bold"
-											>{Math.round(dailyAverage)}</span
-										> shots per day
-									</p>
-								{/if}
-							</div>
-						{:else}
-							<p class="text-muted-foreground text-lg italic">
-								{imageDataList.length < 2
-									? 'Upload 2+ images to see prediction'
-									: 'Unable to calculate'}
-							</p>
-						{/if}
-					</div>
-				</div>
-
+			<!-- Result -->
+			<div class="flex-1 rounded-lg border">
 				{#if predictionDate}
-					<div class="bg-primary/5 border-primary/10 rounded-xl border p-6">
-						<div class="flex items-center gap-4">
-							<div
-								class="bg-primary/20 text-primary flex h-12 w-12 items-center justify-center rounded-full"
-							>
-								<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-									/>
-								</svg>
+					<div in:fade class="flex h-full flex-col p-8">
+						<p class="text-muted-foreground mb-1 text-xs font-medium tracking-widest uppercase">Predicted date</p>
+						<p class="mt-2 text-4xl font-bold tracking-tight md:text-5xl">
+							{predictionDate.toLocaleDateString(undefined, {
+								year: 'numeric',
+								month: 'short',
+								day: 'numeric'
+							})}
+						</p>
+
+						<div class="mt-6 space-y-4">
+							<div class="bg-muted/50 rounded-md px-4 py-3">
+								<p class="text-muted-foreground text-xs">Time remaining</p>
+								<p class="mt-0.5 font-mono font-semibold">{formatRemainingTime(predictionDate)}</p>
 							</div>
-							<div>
-								<p class="text-sm font-medium">Estimated remaining time</p>
-								<p class="text-2xl font-bold">
-									{formatRemainingTime(predictionDate)}
-								</p>
-							</div>
+							{#if dailyAverage}
+								<div class="bg-muted/50 rounded-md px-4 py-3">
+									<p class="text-muted-foreground text-xs">Daily average</p>
+									<p class="mt-0.5 font-mono font-semibold">{Math.round(dailyAverage).toLocaleString()} shots/day</p>
+								</div>
+							{/if}
 						</div>
+					</div>
+				{:else}
+					<div class="flex h-full min-h-[240px] flex-col items-center justify-center p-8 text-center">
+						<div class="text-muted-foreground/30 mb-4">
+							<svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+							</svg>
+						</div>
+						<p class="text-muted-foreground text-sm">
+							{imageDataList.length < 2 ? 'Upload 2 or more images to see prediction' : 'Unable to calculate — check that images have valid metadata'}
+						</p>
 					</div>
 				{/if}
 			</div>
 		</div>
-
 	</div>
 </div>
 
-<div class="container mx-auto mb-16 px-8">
-	<div class="space-y-8">
-		<div class="text-center">
-			<h2 class="text-3xl font-bold tracking-tight">Supported Devices</h2>
-			<p class="text-muted-foreground mt-2">
-				Check if your camera is supported. More brands coming soon.
-			</p>
-		</div>
+<!-- Supported cameras -->
+<div class="border-t">
+	<div class="container mx-auto px-6 py-14">
+		<p class="text-muted-foreground mb-2 text-xs font-medium tracking-widest uppercase">Compatibility</p>
+		<h2 class="mb-8 text-2xl font-bold tracking-tight">Supported cameras</h2>
 
-		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+		<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
 			{#each supportedBrands as brand}
-				<div class="bg-card group overflow-hidden rounded-2xl border shadow-sm transition-all hover:shadow-md">
+				<div class="rounded-lg border overflow-hidden">
 					<button
-						class="flex w-full items-center justify-between p-6 text-left"
+						class="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-muted/40 transition-colors"
 						onclick={() => (expandedBrand = expandedBrand === brand.path ? null : brand.path)}
 					>
-						<span class="text-xl font-bold">{brand.name}</span>
+						<span class="font-semibold">{brand.name}</span>
 						<svg
-							class="h-5 w-5 transition-transform duration-200 {expandedBrand === brand.path ? 'rotate-180' : ''}"
+							class="text-muted-foreground h-4 w-4 transition-transform duration-200 {expandedBrand === brand.path ? 'rotate-180' : ''}"
 							fill="none"
 							viewBox="0 0 24 24"
 							stroke="currentColor"
@@ -265,70 +247,43 @@
 					</button>
 
 					{#if expandedBrand === brand.path}
-						<div transition:slide={{ duration: 300 }} class="border-t bg-muted/30 px-6 py-4">
+						<div transition:slide={{ duration: 200 }} class="border-t bg-muted/20 px-5 py-4 text-sm">
 							{#if brand.path === 'sony'}
-								<div class="grid grid-cols-2 gap-2 text-sm md:grid-cols-3">
+								<div class="grid grid-cols-2 gap-1.5 md:grid-cols-3">
 									{#each Object.values(sonyModels) as model}
-										<div class="text-muted-foreground hover:text-foreground transition-colors">
-											{model.name}
-										</div>
+										<span class="text-muted-foreground text-xs">{model.name}</span>
 									{/each}
 								</div>
 								<div class="mt-4 pt-4 border-t">
 									<a
 										href="{base}{baseRoutes.supportedDevices}/{brand.path}"
-										class="text-primary hover:underline text-sm font-semibold inline-flex items-center gap-1"
+										class="text-sm font-medium hover:underline inline-flex items-center gap-1"
 									>
-										View detailed list
-										<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										Full list
+										<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 										</svg>
 									</a>
 								</div>
 							{:else if brand.path === 'fujifilm'}
-								<div class="text-muted-foreground text-sm">
-									Most modern Fujifilm cameras (X-series, GFX, etc.) are supported.
-									<br /><br />
-									Support includes:
-									<ul class="list-inside list-disc mt-2">
-										<li>JPEG and RAF (Raw) files</li>
-										<li>Automatic Shutter Count detection (ImageCount)</li>
-									</ul>
-								</div>
+								<p class="text-muted-foreground leading-relaxed">X-series, GFX and most modern Fujifilm cameras. Supports JPEG and RAF files.</p>
 							{:else if brand.path === 'nikon'}
-								<div class="text-muted-foreground text-sm">
-									Nikon DSLRs and Z-series mirrorless cameras are supported.
-									<br /><br />
-									Support includes:
-									<ul class="list-inside list-disc mt-2">
-										<li>JPEG and NEF (Raw) files</li>
-										<li>Automatic Shutter Count detection</li>
-									</ul>
-								</div>
+								<p class="text-muted-foreground leading-relaxed">DSLRs and Z-series mirrorless. Supports JPEG and NEF files.</p>
 							{:else if brand.path === 'canon'}
-								<div class="text-muted-foreground text-sm">
-									Most Canon EOS DSLRs and Mirrorless cameras are supported.
-									<br /><br />
-									Support includes:
-									<ul class="list-inside list-disc mt-2">
-										<li>JPEG, CR2 and CR3 (Raw) files</li>
-										<li>Automatic Shutter Count detection (for supported models)</li>
-									</ul>
-								</div>
+								<p class="text-muted-foreground leading-relaxed">Most EOS DSLRs and mirrorless. Supports JPEG, CR2 and CR3 files. Some CR3 not available.</p>
 							{:else}
-								<p class="text-muted-foreground text-sm italic">Coming soon...</p>
+								<p class="text-muted-foreground italic">Not Available</p>
 							{/if}
 						</div>
 					{/if}
 				</div>
 			{/each}
 
-			<!-- Placeholder brands -->
-			{#each ['Olympus', 'Panasonic'] as brandName}
-				<div class="bg-card/50 pointer-events-none rounded-2xl border border-dashed p-6 opacity-50">
+			{#each ['Olympus', 'Panasonic', 'Leica', 'Licoh', 'Pentax', 'Sigma'] as brandName}
+				<div class="rounded-lg border border-dashed px-5 py-4 opacity-40 pointer-events-none">
 					<div class="flex items-center justify-between">
-						<span class="text-xl font-bold">{brandName}</span>
-						<span class="bg-muted rounded-full px-3 py-1 text-xs font-medium">Coming soon</span>
+						<span class="font-semibold">{brandName}</span>
+						<span class="text-muted-foreground text-xs">Not Available</span>
 					</div>
 				</div>
 			{/each}

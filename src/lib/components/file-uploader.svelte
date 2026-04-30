@@ -169,9 +169,9 @@
 </script>
 
 <div
-	class="border-ring relative w-full overflow-hidden rounded-lg border-3 border-dashed {isDragOver
-		? 'bg-muted/50'
-		: ''} {className}"
+	class="relative w-full overflow-hidden rounded-lg border border-dashed transition-colors {isDragOver
+		? 'bg-muted/50 border-foreground/40'
+		: 'border-border hover:border-foreground/20'} {className}"
 	on:dragover={handleDragOver}
 	on:dragleave={handleDragLeave}
 	on:drop={handleDrop}
@@ -202,7 +202,7 @@
 							{#if metadata.shutterCount}
 								<div class="flex justify-start">
 									<span
-										class="bg-black/60 text-white backdrop-blur-md rounded-md px-1.5 py-0.5 text-[10px] font-bold border border-white/20"
+										class="bg-black/60 text-white backdrop-blur-md rounded-md px-1.5 py-0.5 text-[12px] font-bold border border-white/20"
 									>
 										{metadata.shutterCount.toLocaleString()}
 									</span>
@@ -212,14 +212,14 @@
 							<div class="space-y-0.5">
 								{#if metadata.cameraModel}
 									<p
-										class="text-white text-[10px] font-bold leading-tight drop-shadow-md truncate bg-black/40 px-1 rounded-sm backdrop-blur-sm"
+										class="text-white text-[12px] font-bold leading-tight drop-shadow-md truncate bg-black/40 px-1 rounded-sm backdrop-blur-sm"
 									>
 										{metadata.cameraModel}
 									</p>
 								{/if}
 								{#if metadata.date}
 									<p
-										class="text-white/90 text-[8px] leading-tight drop-shadow-md truncate bg-black/40 px-1 rounded-sm backdrop-blur-sm"
+										class="text-white/90 text-[10px] leading-tight drop-shadow-md truncate bg-black/40 px-1 rounded-sm backdrop-blur-sm"
 									>
 										{metadata.date.toLocaleDateString(undefined, {
 											month: 'short',
@@ -266,10 +266,17 @@
 			</div>
 		</div>
 	{:else}
-		<div
-			class="flex min-h-[200px] w-full cursor-pointer items-center justify-center p-4 text-center"
-		>
-			{placeholder}
+		<div class="flex min-h-[200px] w-full cursor-pointer flex-col items-center justify-center gap-3 p-8 text-center">
+			<div class="text-muted-foreground/40">
+				<svg class="mx-auto h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+				</svg>
+			</div>
+			<div>
+				<p class="text-sm font-medium">Drop images here or click to browse</p>
+				<p class="text-muted-foreground mt-1 text-xs">RAW · JPEG · 2+ images recommended</p>
+			</div>
 		</div>
 	{/if}
 

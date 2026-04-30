@@ -26,8 +26,8 @@
 
 <NavigationMenu.Root
 	viewport={false}
-	class="bg-background/80 fixed top-0 right-0 left-0 z-50
-	flex max-w-full items-center justify-between border-b px-6 py-4 shadow-sm backdrop-blur"
+	class="bg-background/90 fixed top-0 right-0 left-0 z-50
+	flex max-w-full items-center justify-between border-b px-6 py-3.5 backdrop-blur"
 >
 	<NavigationMenu.List class="relative">
 		<NavigationMenu.Item
@@ -47,9 +47,6 @@
 	</NavigationMenu.List>
 
 	<NavigationMenu.List class="flex items-center gap-4">
-		<NavigationMenu.Item>
-			<NavigationMenu.Link href={baseRoutes.github} target="_blank">Github</NavigationMenu.Link>
-		</NavigationMenu.Item>
 
 		<NavigationMenu.Item>
 			<ModeToggle />

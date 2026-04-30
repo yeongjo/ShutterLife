@@ -5,32 +5,32 @@
 		{
 			question: 'What is ShutterLife?',
 			answer:
-				'ShutterLife is a free web tool that checks your camera\'s shutter count and predicts remaining life using original RAW or JPEG files.'
+				"ShutterLife is a free web tool that checks your camera's shutter count and predicts remaining life using original RAW or JPEG files."
 		},
 		{
-			question: 'What is Shutter Count?',
+			question: 'What is shutter count?',
 			answer:
-				'It\'s the number of mechanical shutter actuations. Manufacturers define an expected lifetime for these, making it a key factor in determining your camera\'s longevity and resale value.'
+				"The number of mechanical shutter actuations. Manufacturers rate their shutters to a specific count — making it a key factor in longevity and resale value."
 		},
 		{
 			question: 'Are my photos uploaded to a server?',
 			answer:
-				'No. All processing happens locally in your browser. Your files never leave your device, ensuring complete privacy.'
+				'No. All processing happens locally in your browser. Your files never leave your device.'
 		},
 		{
 			question: 'Which file types and cameras are supported?',
 			answer:
-				'We support original RAW (.arw) and JPEG files. Currently optimized for Sony Alpha series, with more brands and models being added regularly.'
+				'RAW and JPEG files from Sony, Fujifilm, Nikon, and Canon cameras. More brands are being added.'
 		},
 		{
 			question: 'How should I transfer images for accurate data?',
 			answer:
-				'Use original, unedited files directly from your camera. Editing software or certain transfer methods often remove the embedded shutter count data.'
+				'Use original, unedited files directly from your camera. Editing or re-saving images often strips the embedded shutter count.'
 		},
 		{
 			question: 'How does the prediction work?',
 			answer:
-				'By comparing the shutter count and timestamps of two or more images, we calculate your average usage rate to estimate when you\'ll reach future shutter milestones.'
+				"By comparing shutter counts and timestamps across 2+ images, we calculate your average daily usage rate and project when you'll hit your target."
 		}
 	];
 
@@ -41,38 +41,38 @@
 	}
 </script>
 
-<section class="mt-16 w-full max-w-4xl mx-auto px-4 pb-24">
-	<div class="text-center mb-12">
-		<h2 class="text-3xl font-bold tracking-tight mb-4">Frequently Asked Questions</h2>
-		<p class="text-muted-foreground">Everything you need to know about ShutterLife.</p>
-	</div>
+<div class="border-t">
+	<div class="container mx-auto px-6 py-14">
+		<p class="text-muted-foreground mb-2 text-xs font-medium tracking-widest uppercase">FAQ</p>
+		<h2 class="mb-8 text-2xl font-bold tracking-tight">Common questions</h2>
 
-	<div class="space-y-4">
-		{#each faqs as faq, i}
-			<div class="border rounded-2xl overflow-hidden bg-card transition-all {openIndex === i ? 'ring-1 ring-primary/20 shadow-md' : 'hover:bg-muted/30'}">
-				<button
-					class="w-full px-6 py-5 text-left flex justify-between items-center gap-4 transition-colors"
-					onclick={() => toggle(i)}
-				>
-					<span class="font-semibold text-lg">{faq.question}</span>
-					<svg
-						class="w-5 h-5 transition-transform duration-300 {openIndex === i ? 'rotate-180' : ''}"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
+		<div class="max-w-2xl divide-y rounded-lg border">
+			{#each faqs as faq, i}
+				<div>
+					<button
+						class="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-muted/40"
+						onclick={() => toggle(i)}
 					>
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-					</svg>
-				</button>
-				
-				{#if openIndex === i}
-					<div transition:slide={{ duration: 300 }}>
-						<div class="px-6 pb-6 text-muted-foreground leading-relaxed">
-							{faq.answer}
+						<span class="pr-4 font-medium">{faq.question}</span>
+						<svg
+							class="text-muted-foreground h-4 w-4 shrink-0 transition-transform duration-200 {openIndex === i ? 'rotate-180' : ''}"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+						</svg>
+					</button>
+
+					{#if openIndex === i}
+						<div transition:slide={{ duration: 200 }}>
+							<div class="border-t bg-muted/20 px-5 py-4 text-sm text-muted-foreground leading-relaxed">
+								{faq.answer}
+							</div>
 						</div>
-					</div>
-				{/if}
-			</div>
-		{/each}
+					{/if}
+				</div>
+			{/each}
+		</div>
 	</div>
-</section>
+</div>
