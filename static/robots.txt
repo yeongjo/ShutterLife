@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yenjo.github.io/ShutterLife/sitemap.xml

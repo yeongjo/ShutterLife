@@ -1,9 +1,15 @@
 <svelte:head>
-	<title>About | ShutterLife</title>
+	<title>About | ShutterLife — Camera Shutter Count Checker</title>
 	<meta
 		name="description"
-		content="Learn more about ShutterLife, the easiest way to check your camera's shutter count."
+		content="ShutterLife is a free, privacy-first browser tool that reads your camera's shutter count from image metadata. No server upload, no account needed. Built for photographers."
 	/>
+	<link rel="canonical" href="https://yenjo.github.io/ShutterLife/about" />
+	<meta property="og:title" content="About ShutterLife — Camera Shutter Count Checker" />
+	<meta property="og:description" content="ShutterLife reads your camera's shutter count directly from image metadata — no uploads, no servers, no signup. Free and private." />
+	<meta property="og:url" content="https://yenjo.github.io/ShutterLife/about" />
+	<meta name="twitter:title" content="About ShutterLife — Camera Shutter Count Checker" />
+	<meta name="twitter:description" content="ShutterLife reads your camera's shutter count directly from image metadata — no uploads, no servers, no signup." />
 </svelte:head>
 
 <!-- Hero -->

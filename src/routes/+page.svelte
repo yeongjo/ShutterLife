@@ -124,11 +124,47 @@
 </script>
 
 <svelte:head>
-	<title>ShutterLife — Predict your shutter life</title>
+	<title>ShutterLife — Camera Shutter Count Checker & Life Predictor</title>
 	<meta
 		name="description"
-		content="Calculate and predict when your camera will reach its shutter life limit."
+		content="Free online tool to check your camera's shutter count and predict remaining shutter life. Upload a photo from your Sony, Nikon, Canon, or Fujifilm camera to instantly read shutter actuations from EXIF metadata — no upload to server, 100% private."
 	/>
+	<meta name="keywords" content="shutter count checker, camera shutter life, shutter actuations, shutter count from photo, Sony shutter count, Nikon shutter count, Canon shutter count, Fujifilm shutter count, camera shutter life predictor, EXIF shutter count, 셔터 수명, 셔터 카운트 확인, 카메라 수명 계산" />
+	<link rel="canonical" href="https://yenjo.github.io/ShutterLife/" />
+	<meta property="og:title" content="ShutterLife — Camera Shutter Count Checker & Life Predictor" />
+	<meta property="og:description" content="Check your camera's shutter count and predict when you'll hit the limit. Free, private, works entirely in your browser. Supports Sony, Nikon, Canon, Fujifilm." />
+	<meta property="og:url" content="https://yenjo.github.io/ShutterLife/" />
+	<meta property="og:image" content="https://yenjo.github.io/ShutterLife/og-image.png" />
+	<meta name="twitter:title" content="ShutterLife — Camera Shutter Count Checker & Life Predictor" />
+	<meta name="twitter:description" content="Check your camera's shutter count and predict remaining life. Free, private, in-browser. Supports Sony, Nikon, Canon, Fujifilm." />
+	<meta name="twitter:image" content="https://yenjo.github.io/ShutterLife/og-image.png" />
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "SoftwareApplication",
+		"name": "ShutterLife",
+		"description": "Free online tool to check your camera's shutter count and predict remaining shutter life from photo EXIF metadata. Supports Sony, Nikon, Canon, and Fujifilm cameras.",
+		"applicationCategory": "PhotographyApplication",
+		"operatingSystem": "Web",
+		"offers": {
+			"@type": "Offer",
+			"price": "0",
+			"priceCurrency": "USD"
+		},
+		"url": "https://yenjo.github.io/ShutterLife/",
+		"author": {
+			"@type": "Person",
+			"name": "yenjo"
+		},
+		"featureList": [
+			"Read shutter count from EXIF metadata",
+			"Predict remaining shutter life",
+			"Works entirely in browser — no server upload",
+			"Supports Sony, Nikon, Canon, Fujifilm",
+			"Supports RAW and JPEG files"
+		]
+	}
+	</script>
 </svelte:head>
 
 <!-- Hero -->

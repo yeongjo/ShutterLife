@@ -24,8 +24,12 @@
 </script>
 
 <svelte:head>
-	<title>Support - Sony | ShutterLife</title>
-	<meta name="description" content="Sony cameras supported by ShutterLife." />
+	<title>Supported Sony Cameras | ShutterLife — Shutter Count Checker</title>
+	<meta name="description" content="Full list of Sony cameras supported by ShutterLife shutter count checker. Includes Sony Alpha, A7, A9, A6000 series and more. Check shutter actuations from ARW, JPEG files." />
+	<link rel="canonical" href="https://yenjo.github.io/ShutterLife/supported/sony" />
+	<meta property="og:title" content="Supported Sony Cameras | ShutterLife" />
+	<meta property="og:description" content="Full list of Sony cameras supported for shutter count checking. Sony Alpha, A7, A9, A6000 series and more." />
+	<meta property="og:url" content="https://yenjo.github.io/ShutterLife/supported/sony" />
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-10">
